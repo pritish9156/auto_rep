@@ -1,0 +1,35 @@
+Functionality:
+
+1. import imaplib: Imports the imaplib module, which provides IMAP protocol client functionality.
+2. import email: Imports the email module, which contains classes and functions for working with email messages.
+3. import smtplib: Imports the smtplib module, which is used for sending emails using the SMTP protocol.
+4. from email.mime.text import MIMEText: Imports the MIMEText class from the email.mime.text module, which allows us to create email message objects. Multipurpose Internet Mail Extensions (MIME) is an Internet standard that is used to support the transfer of single or multiple text and non-text attachments
+
+6-17: Configuration and setup:
+   - Here, you need to provide your IMAP and SMTP settings. Replace the placeholder values with the actual values for your email account.
+
+20-26: Connecting to the IMAP server and selecting the mailbox:
+   - imap_server = imaplib.IMAP4_SSL(IMAP_HOST, IMAP_PORT): Creates an instance of the IMAP4_SSL class to establish a secure SSL connection with the IMAP server.
+   - imap_server.login(IMAP_USERNAME, IMAP_PASSWORD): Logs into the IMAP server using the provided username and password.
+   - imap_server.select(): Selects the mailbox to operate on. This line assumes that the default mailbox should be used.
+
+29-37: Searching for unread messages and processing them:
+   - status, data = imap_server.search(None, '(UNSEEN)'): Searches for unread messages in the selected mailbox.
+   - for num in data[0].split():: Iterates over the list of message numbers returned by the search.
+   - status, message_data = imap_server.fetch(num, '(RFC822)'): Fetches the email message data for the specified message number.
+   - raw_email = message_data[0][1]: Retrieves the raw email content from the fetched message data.
+   - email_message = email.message_from_bytes(raw_email): Parses the raw email content into an email.Message object.
+   - sender_email = email.utils.parseaddr(email_message['From'])[1]: Extracts the sender's email address from the From header of the email message.
+
+40-46: Creating and sending a reply email:
+   - reply_subject = 'Re: ' + email_message['Subject']: Prepends 'Re: ' to the original email's subject to create the reply subject.
+   - reply_text = f"Thank you for your email.\n\nYour email address is: {sender_email}": Constructs the reply text with the sender's email address.
+   - reply_email = MIMEText(reply_text): Creates a new MIMEText object for the reply email.
+   - reply_email['Subject'] = reply_subject: Sets the subject of the reply email.
+   - reply_email['From'] = SMTP_USERNAME: Sets the sender of the reply email.
+   - reply_email['To'] = sender_email: Sets the recipient of the reply email.
+   - smtp_server = smtplib.SMTP(SMTP_HOST, SMTP_PORT): Creates an instance of the SMTP class to establish a connection with the SMTP server.
+   - smtp_server.starttls(): Initiates a TLS connection with the SMTP server for secure communication.
+   - smtp_server.login(SMTP_USERNAME, SMTP_PASSWORD): Logs into the SMTP server using the provided username and password.
+   - smtp_server.sendmail(SMTP_USERNAME, sender_email, reply_email.as_string()): Sends the reply email by using the sendmail method of the SMTP server object.
+   - smtp_server.quit(): Closes the connection with
